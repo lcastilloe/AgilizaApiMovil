@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
 @Composable
 fun BottomNavBar() {
@@ -27,8 +26,8 @@ fun BottomNavBar() {
             selected = false,
             onClick = { },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.secondary,
-                unselectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
 
@@ -87,7 +86,7 @@ fun BottomNavBar() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewBottomNavBar() {
-    AgilizaAppTheme  { // 🔹 Encapsulamos el Preview en MaterialTheme
+    MaterialTheme { // 🔹 Encapsulamos el Preview en MaterialTheme
         BottomNavBar()
     }
 }
