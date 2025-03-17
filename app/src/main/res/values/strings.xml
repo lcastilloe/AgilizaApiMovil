@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AgilizaApp</string>
+    <string name="search_bar_text">Buscar pedido</string>
 </resources>
