@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             AgilizaAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Wonka",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
