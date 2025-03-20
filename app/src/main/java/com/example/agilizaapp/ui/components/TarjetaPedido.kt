@@ -1,6 +1,6 @@
 package com.example.agilizaapp.ui.components
 
-import android.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,7 +39,7 @@ fun TarjetaPedido(
             .width(170.dp)
             .height(200.dp)
     ){
-        Column (){
+        Column {
             Row (modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)
                 .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center, // Centra horizontalmente
@@ -86,7 +86,7 @@ fun TarjetaPedido(
                     color = MaterialTheme.colorScheme.primary // Color primario
                 )
             }
-            Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer,)
+            Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)
                 .fillMaxWidth().height(20.dp),
                 horizontalArrangement = Arrangement.Center, // Centra horizontalmente
                 verticalAlignment = Alignment.CenterVertically){
@@ -142,7 +142,7 @@ fun TarjetaPedido(
                     color = MaterialTheme.colorScheme.primary // Color primario
                 )
             }
-            Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer,)
+            Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)
                 .fillMaxWidth().height(20.dp),
                 horizontalArrangement = Arrangement.Center, // Centra horizontalmente
                 verticalAlignment = Alignment.CenterVertically){
