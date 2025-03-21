@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.agilizaapp.R
+import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
 @Composable
 fun TopBar(
@@ -27,7 +28,7 @@ fun TopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding() // 🔹 Mueve el TopBar debajo de la barra de estado
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -36,7 +37,7 @@ fun TopBar(
             Icon(
                 imageVector = Icons.Filled.Menu,
                 contentDescription = "Menú",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -67,8 +68,11 @@ fun TopBar(
 @Preview(showBackground = true)
 @Composable
 fun PreviewTopBar() {
-    TopBar(
-        onMenuClick = { },
-        onProfileClick = { }
-    )
+    AgilizaAppTheme{
+        TopBar(
+            onMenuClick = { },
+            onProfileClick = { }
+        )
+    }
+
 }

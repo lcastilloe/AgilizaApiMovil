@@ -16,6 +16,7 @@ import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.PedidoCard
 import com.example.agilizaapp.ui.components.Producto
+import com.example.agilizaapp.ui.components.TarjetaPedido
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,25 +51,48 @@ fun HomeScreen() {
         ) {
             SearchBar()
 
-            // 🔹 Agregar un pedido de prueba
-            PedidoCard(
-                codigo = "A10",
-                fecha = "11 Febrero",
-                hora = "10:30 am",
-                estado = "Listo",
-                cliente = "Mateo",
-                barrio = "Santa Clara",
-                domicilio = "$7.000",
-                productos = listOf(
-                    Producto("01", "Listo", "$40.000"),
-                    Producto("05", "Listo", "$42.000")
-                ),
-                total = "$89.000",
-                backgroundColor = Color(0xFFD0F0FF) // Azul claro
-            )
+            // 🔹 Mostrar dos tarjetas lado a lado
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TarjetaPedido(
+                    codigo = "A10",
+                    fecha = "11 Febrero",
+                    hora = "10:30 am",
+                    cliente = "Mateo",
+                    barrio = "Santa Clara",
+                    domicilio = "$7.000",
+                    productosIniciales = listOf(
+                        Producto("01", "Inicio", "$40.000"),
+                        Producto("02", "Preparación", "$50.000"),
+                        Producto("03", "Listo", "$60.000")
+                    ),
+                    total = "$150.000",
+                    backgroundColor = Color(0xFFD0F0FF)
+                )
+                TarjetaPedido(
+                    codigo = "A10",
+                    fecha = "11 Febrero",
+                    hora = "10:30 am",
+                    cliente = "Mateo",
+                    barrio = "Santa Clara",
+                    domicilio = "$7.000",
+                    productosIniciales = listOf(
+                        Producto("01", "Inicio", "$40.000"),
+                        Producto("02", "Preparación", "$50.000"),
+                        Producto("03", "Listo", "$60.000")
+                    ),
+                    total = "$150.000",
+                    backgroundColor = Color(0xFFD0F0FF)
+                )
+            }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
