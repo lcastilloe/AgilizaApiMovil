@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import com.example.agilizaapp.ui.components.SearchBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.components.BottomNavBar
-import com.example.agilizaapp.ui.components.PedidoCard
-import com.example.agilizaapp.ui.components.Producto
+//import com.example.agilizaapp.ui.components.PedidoCard
+import com.example.agilizaapp.ui.Producto
 import com.example.agilizaapp.ui.components.TarjetaPedido
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
