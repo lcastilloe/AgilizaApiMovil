@@ -24,24 +24,25 @@ fun PedidoCard(
     domicilio: String,
     productos: List<Producto>,
     total: String,
-    backgroundColor: Color
+    backgroundColor: Color,
+    modifier: Modifier = Modifier // Permitir modificar tamaño desde el exterior
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(8.dp)
-            .size(250.dp)
+            .width(250.dp)
+            .height(250.dp)
+    // Altura fija
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween // 🔹 Separa el contenido y el total
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                // 🔹 Encabezado con código, fecha y estado
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -59,7 +60,6 @@ fun PedidoCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 🔹 Detalles del pedido
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     InfoText(title = "Cliente", value = cliente)
                     InfoText(title = "Barrio", value = barrio)
@@ -68,7 +68,6 @@ fun PedidoCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 🔹 Lista de productos
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Producto", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     Text("Estado", fontWeight = FontWeight.Bold, fontSize = 12.sp)
@@ -85,7 +84,6 @@ fun PedidoCard(
                 }
             }
 
-            // 🔹 Total del pedido (siempre abajo y centrado)
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     "TOTAL: $total",
@@ -97,7 +95,6 @@ fun PedidoCard(
         }
     }
 }
-
 
 // 🔹 Composable para mostrar el estado con color
 @Composable
