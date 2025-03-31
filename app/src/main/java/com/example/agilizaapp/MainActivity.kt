@@ -75,7 +75,7 @@ fun HomeScreen() {
                 )
                 TarjetaPedido(
                     codigo = "A10",
-                    fecha = "11 Febrero",
+                    fecha = "31 de marzo",
                     hora = "10:30 am",
                     cliente = "Mateo",
                     barrio = "Santa Clara",
