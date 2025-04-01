@@ -3,21 +3,17 @@ package com.example.agilizaapp.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.material3.Scaffold
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.agilizaapp.ui.Producto
-import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.SearchBar
 import com.example.agilizaapp.ui.components.TarjetaPedido
-import com.example.agilizaapp.ui.components.TopBar
 
 
 @Composable
