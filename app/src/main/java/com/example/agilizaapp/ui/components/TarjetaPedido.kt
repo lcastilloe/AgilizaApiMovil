@@ -78,6 +78,7 @@ fun TarjetaPedido(
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
 
 
+
                     Box(
                         modifier = Modifier
                             .background(color = MaterialTheme.colorScheme.tertiary, shape = RoundedCornerShape(8.dp))
