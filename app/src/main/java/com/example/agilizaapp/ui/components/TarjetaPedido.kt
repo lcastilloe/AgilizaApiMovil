@@ -209,7 +209,7 @@ fun FilaTabla(
             Text(
                 text = texto,
                 modifier = Modifier.weight(1f), // Hace que todas las columnas ocupen el mismo espacio
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center, // Centra el texto dentro de su espacio
+                textAlign = TextAlign.Center, // Centra el texto dentro de su espacio
                 fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal, // Aplica negrita si el usuario lo solicita
                 fontSize = 10.sp, // Tamaño del texto
                 color = MaterialTheme.colorScheme.primary // Color del texto

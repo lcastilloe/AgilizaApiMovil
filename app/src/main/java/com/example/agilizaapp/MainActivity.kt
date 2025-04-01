@@ -14,6 +14,8 @@ import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
 //import com.example.agilizaapp.ui.screens.AgendaScreen
 import com.example.agilizaapp.ui.screens.HomeScreen
+
+import com.example.agilizaapp.ui.screens.ProductGrid
 //import com.example.agilizaapp.ui.screens.ProductosScreen
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
@@ -47,10 +49,10 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                     ) {
                         when (currentScreen) {
-                            //Screen.AGENDA -> AgendaScreen()
+                            Screen.PRODUCTOS -> ProductGrid()
                             Screen.PEDIDOS -> HomeScreen()
                             Screen.ANADIR_PEDIDO -> AnadirPedido()
-                            //Screen.CONTABILIDAD -> Text("Pantalla de Contabilidad (en construcción)")
+                            //Screen.CONTABILIDAD -> PantallaConFechaYHora1()
                             else -> HomeScreen()
                         }
                     }

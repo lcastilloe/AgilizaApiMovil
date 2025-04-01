@@ -1,6 +1,8 @@
 package com.example.agilizaapp.ui.components
 
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,13 +17,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.example.agilizaapp.R
 import com.example.agilizaapp.ui.Producto
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import java.util.Calendar
 
 @Composable
 fun AnadirPedido(
@@ -50,20 +56,16 @@ fun AnadirPedido(
             )
         }
         FilaTablaAnadirPedido(
-            columnas = listOf("Datos de entrega"),
+            columnas = listOf("Datos de pedido"),
             backgroundColor = MaterialTheme.colorScheme.primaryContainer,
             negrita = true // Cambia a false si quieres el texto normal
         )
         FilaTablaAnadirPedido(
-            columnas = listOf("Fecha","Hora"),
+            columnas = listOf("Fecha","Hora","Pago"),
             backgroundColor = MaterialTheme.colorScheme.inversePrimary,
             negrita = true // Cambia a false si quieres el texto normal
         )
-        FilaTablaAnadirPedido(
-            columnas = listOf("Fecha","Hora"),
-            backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-            negrita = false // Cambia a false si quieres el texto normal
-        )
+        PantallaConFechaYHora()
 
     }
 
@@ -94,11 +96,80 @@ fun FilaTablaAnadirPedido(
             Text(
                 text = texto,
                 modifier = Modifier.weight(1f), // Hace que todas las columnas ocupen el mismo espacio
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center, // Centra el texto dentro de su espacio
+                textAlign = TextAlign.Center, // Centra el texto dentro de su espacio
                 fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal, // Aplica negrita si el usuario lo solicita
                 fontSize = 18.sp, // Tamaño del texto
                 color = MaterialTheme.colorScheme.primary // Color del texto
             )
+
         }
     }
 }
+
+@Composable
+fun PantallaConFechaYHora() {
+    var fecha by remember { mutableStateOf("") }
+    var hora by remember { mutableStateOf("") }
+
+        SelectorFechaYHora(
+            fechaSeleccionada = fecha,
+            horaSeleccionada = hora,
+            onFechaChange = { fecha = it },
+            onHoraChange = { hora = it }
+        )
+
+}
+@Composable
+fun SelectorFechaYHora(
+    fechaSeleccionada: String,
+    horaSeleccionada: String,
+    onFechaChange: (String) -> Unit,
+    onHoraChange: (String) -> Unit
+) {
+    val context = LocalContext.current
+
+    // Manejador de fecha
+    val calendario = Calendar.getInstance()
+    val year = calendario.get(Calendar.YEAR)
+    val month = calendario.get(Calendar.MONTH)
+    val day = calendario.get(Calendar.DAY_OF_MONTH)
+
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, hour: Int, minute: Int ->
+            onHoraChange(String.format("%02d:%02d", hour, minute))
+        },
+        calendario.get(Calendar.HOUR_OF_DAY),
+        calendario.get(Calendar.MINUTE),
+        false
+    )
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, y, m, d ->
+            onFechaChange("$d/${m + 1}/$y")
+        },
+        year,
+        month,
+        day
+    )
+    // Personalizar los colores
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedButton(onClick = { datePickerDialog.show() }) {
+            Text(text = fechaSeleccionada.ifBlank { "Seleccionar fecha" })
+        }
+        OutlinedButton(onClick = { timePickerDialog.show() }) {
+            Text(text = horaSeleccionada.ifBlank { "Seleccionar hora" })
+        }
+    }
+}
+
+
+
