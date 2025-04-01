@@ -13,10 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.agilizaapp.ui.navigation.Screen
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 
 @Composable
-fun BottomNavBar() {
+fun BottomNavBar(selectedScreen: Screen,
+                 onItemSelected: (Screen) -> Unit) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 4.dp
@@ -25,7 +27,7 @@ fun BottomNavBar() {
             icon = { Icon(Icons.Filled.DateRange, contentDescription = "Agenda") },
             label = { Text("Agenda") },
             selected = false,
-            onClick = { },
+            onClick = {onItemSelected(Screen.AGENDA) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.secondary,
                 unselectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer
@@ -36,7 +38,7 @@ fun BottomNavBar() {
             icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Pedidos") }, // 🔹 Icono corregido
             label = { Text("Pedidos") },
             selected = true,
-            onClick = { },
+            onClick = {onItemSelected(Screen.PEDIDOS)},
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -49,7 +51,7 @@ fun BottomNavBar() {
             icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Productos") },
             label = { Text("Productos") },
             selected = false,
-            onClick = { },
+            onClick = { onItemSelected(Screen.PRODUCTOS)},
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -60,7 +62,7 @@ fun BottomNavBar() {
             icon = { Icon(Icons.Filled.Person, contentDescription = "Contabilidad") },
             label = { Text("Contabilidad") },
             selected = false,
-            onClick = { },
+            onClick = {onItemSelected(Screen.CONTABILIDAD) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -74,7 +76,7 @@ fun BottomNavBar() {
         contentAlignment = Alignment.Center
     ) {
         FloatingActionButton(
-            onClick = { },
+            onClick = {onItemSelected(Screen.ANADIR_PEDIDO) },
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(56.dp)
@@ -84,10 +86,11 @@ fun BottomNavBar() {
     }
 }
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun PreviewBottomNavBar() {
     AgilizaAppTheme  { // 🔹 Encapsulamos el Preview en MaterialTheme
         BottomNavBar()
     }
 }
+*/
