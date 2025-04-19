@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "391209749764",
+    "project_id": "agilizaapp-893d1",
+    "storage_bucket": "agilizaapp-893d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:391209749764:android:fca4cd8da05253d5db5451",
+        "android_client_info": {
+          "package_name": "com.example.agilizaapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "391209749764-5rsiflhou3cf5rdg3m3v960rvsn9eh8c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.agilizaapp",
+            "certificate_hash": "a5d7b01205c9c0736fb436c7c12cdfd77095f4f6"
+          }
+        },
+        {
+          "client_id": "391209749764-046jb4u00rv68un3j41kmq03dbm4mqul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu_3wLGnrFZoXEcSPrBfVRcbrlntq2nXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "391209749764-046jb4u00rv68un3j41kmq03dbm4mqul.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

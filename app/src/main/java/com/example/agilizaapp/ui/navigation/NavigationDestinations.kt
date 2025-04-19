@@ -1,6 +1,7 @@
 package com.example.agilizaapp.ui.navigation
 
 enum class Screen {
+    LOGIN,
     AGENDA,
     PEDIDOS,
     PRODUCTOS,

@@ -12,47 +12,61 @@ import com.example.agilizaapp.ui.components.AnadirPedido
 import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
-//import com.example.agilizaapp.ui.screens.AgendaScreen
 import com.example.agilizaapp.ui.screens.HomeScreen
-
+import com.example.agilizaapp.ui.screens.LoginScreen
 import com.example.agilizaapp.ui.screens.ProductGrid
-//import com.example.agilizaapp.ui.screens.ProductosScreen
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             AgilizaAppTheme {
-                var currentScreen by remember { mutableStateOf(Screen.PEDIDOS) }
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                var currentScreen by remember {
+                    mutableStateOf(
+                        if (currentUser == null) Screen.LOGIN else Screen.PEDIDOS
+                    )
+                }
 
                 Scaffold(
                     topBar = {
-                        TopBar(
-                            onMenuClick = { /* TODO: Menú lateral */ },
-                            onProfileClick = { /* TODO: Perfil */ }
-                        )
+                        if (currentScreen != Screen.LOGIN) {
+                            TopBar(
+                                onMenuClick = { /* TODO: Menú lateral */ },
+                                onProfileClick = { /* TODO: Perfil */ }
+                            )
+                        }
                     },
                     bottomBar = {
-                        BottomNavBar(
-                            selectedScreen = currentScreen,
-                            onItemSelected = { screen ->
-                                currentScreen = screen
-                            }
-                        )
+                        if (currentScreen != Screen.LOGIN) {
+                            BottomNavBar(
+                                selectedScreen = currentScreen,
+                                onItemSelected = { screen ->
+                                    currentScreen = screen
+                                }
+                            )
+                        }
                     },
                     contentWindowInsets = WindowInsets.safeDrawing
                 ) { innerPadding ->
-                    Box(modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
                     ) {
                         when (currentScreen) {
+                            Screen.LOGIN -> LoginScreen(
+                                onLoginSuccess = {
+                                    currentScreen = Screen.PEDIDOS
+                                }
+                            )
                             Screen.PRODUCTOS -> ProductGrid()
                             Screen.PEDIDOS -> HomeScreen()
                             Screen.ANADIR_PEDIDO -> AnadirPedido()
-                            //Screen.CONTABILIDAD -> PantallaConFechaYHora1()
                             else -> HomeScreen()
                         }
                     }
