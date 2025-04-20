@@ -19,6 +19,7 @@ import com.example.agilizaapp.ui.screens.HomeScreen
 import com.example.agilizaapp.ui.screens.LoginScreen
 import com.example.agilizaapp.ui.screens.ProductGrid
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import com.example.agilizaapp.ui.viewmodels.HomeViewModel
 import com.example.agilizaapp.ui.viewmodels.SharedPedidoViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val sharedPedidoVM: SharedPedidoViewModel = viewModel()
+                val homeViewModel: HomeViewModel = viewModel() // Agrega esto
 
                 Scaffold(
                     topBar = {
@@ -89,7 +91,11 @@ class MainActivity : ComponentActivity() {
                                 if (pedidoTemporal != null) {
                                     AnadirPedidoConProductos(
                                         codigo = codigo,
-                                        pedidoTemporal = pedidoTemporal
+                                        pedidoTemporal = pedidoTemporal,
+                                        onPedidoGuardado = {
+                                            homeViewModel.cargarPedidos() // ← FORZAR RECARGA
+                                            currentScreen = Screen.PEDIDOS
+                                        }
                                     )
                                 } else {
                                     Text("Error: No se encontró la información del pedido")

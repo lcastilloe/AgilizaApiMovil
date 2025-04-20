@@ -15,5 +15,6 @@ data class Pedido(
     val barrio: String = "",
     val dePara: String = "",
     val valorDomicilio: Double = 0.0,
-    val valorTotal: Double = 0.0
+    val valorTotal: Double = 0.0,
+    val productos: List<ProductoEstadoPedido> = emptyList() // NUEVO
 )

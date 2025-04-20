@@ -28,7 +28,8 @@ fun AnadirPedidoConProductos(
     pedidoTemporal: PedidoTemporal,
     modifier: Modifier = Modifier,
     productoVM: ProductoPreviewViewModel = viewModel(),
-    pedidoVM: AnadirPedidoConProductosViewModel = viewModel()
+    pedidoVM: AnadirPedidoConProductosViewModel = viewModel(),
+    onPedidoGuardado: () -> Unit // NUEVO
 ) {
     val productos by productoVM.productos.collectAsState()
     val seleccionados by pedidoVM.seleccionados.collectAsState()
@@ -127,6 +128,7 @@ fun AnadirPedidoConProductos(
                         onSuccess = {
                             Toast.makeText(context, "Pedido guardado con éxito", Toast.LENGTH_SHORT).show()
                             pedidoVM.limpiarSeleccionados()
+                            onPedidoGuardado() // ← aquí rediriges a HomeScreen
                         },
                         onError = {
                             Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()

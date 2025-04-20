@@ -4,6 +4,7 @@ package com.example.agilizaapp.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,8 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.agilizaapp.ui.data.Producto
+import com.example.agilizaapp.ui.data.ProductoEstadoPedido
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import java.util.Locale
 
 @Composable
 fun TarjetaPedido(
@@ -31,7 +33,7 @@ fun TarjetaPedido(
     cliente: String,
     barrio: String,
     domicilio: String,
-    productosIniciales: List<Producto>,
+    productosIniciales: List<ProductoEstadoPedido>,
     total: String,
     backgroundColor: Color,
     modifier: Modifier = Modifier
@@ -62,7 +64,7 @@ fun TarjetaPedido(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "$codigo - $fecha",
+                    text = "$codigo - ${formatearFecha(fecha)}",
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -95,12 +97,16 @@ fun TarjetaPedido(
                 }
 
                 Text(
-                    text = hora,
-                    modifier = Modifier.weight(1f),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    text = formatearHora(hora),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp, // ← reducido de 16.sp a 12.sp
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
                 )
+
             }
 
             // Tabla de encabezados
@@ -122,26 +128,50 @@ fun TarjetaPedido(
             )
 
             // Tabla de productos con estados interactivos
-            productos.forEachIndexed { index, producto ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(30.dp)
-                ) {
-                    FilaProducto(
-                        elementos = listOf(
-                            { Text(producto.codigo, fontSize = 10.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.primary) },
-                            {
-                                BoxEstado(estadoInicial = productos[index].estado) { nuevoEstado ->
-                                    productos[index] = productos[index].copy(estado = nuevoEstado)
-                                    estadoPedido = calcularEstadoPedido(productos.map { it.estado }) // Actualiza el estado del pedido
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(90.dp) // Puedes ajustar esto según el espacio disponible
+            ) {
+                items(productos.size) { index ->
+                    val producto = productos[index]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                    ) {
+                        FilaProducto(
+                            elementos = listOf(
+                                {
+                                    Text(
+                                        producto.codigo,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                },
+                                {
+                                    BoxEstado(estadoInicial = producto.estado) { nuevoEstado ->
+                                        productos[index] = productos[index].copy(estado = nuevoEstado)
+                                        estadoPedido = calcularEstadoPedido(productos.map { it.estado })
+                                    }
+                                },
+                                {
+                                    Text(
+                                        producto.precio,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
-                            },
-                            { Text(producto.precio, fontSize = 10.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.primary) }
-                        ),
-                        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                        negrita = false
-                    )
+                            ),
+                            backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                            negrita = false
+                        )
+                    }
                 }
             }
+
 
             // Total
             Row(
@@ -181,9 +211,9 @@ fun PreviewTarjetaPedido() {
             barrio = "Santa Clara",
             domicilio = "$7.000",
             productosIniciales = listOf(
-                Producto("01", "Inicio", "$40.000"),
-                Producto("02", "Preparación", "$50.000"),
-                Producto("03", "Listo", "$60.000")
+                ProductoEstadoPedido("01", "Inicio", "$40.000"),
+                ProductoEstadoPedido("02", "Preparación", "$50.000"),
+                ProductoEstadoPedido("03", "Listo", "$60.000")
             ),
             total = "$150.000",
             backgroundColor = Color(0xFFD0F0FF)
@@ -284,3 +314,26 @@ fun cambiarEstado(estadoActual: String): String {
         else -> "Inicio"
     }
 }
+fun formatearHora(hora: String): String {
+    return try {
+        val formatoEntrada = java.text.SimpleDateFormat("HH:mm", Locale("es", "ES"))
+        val formatoSalida = java.text.SimpleDateFormat("hh:mm a", Locale("es", "ES"))
+        val date = formatoEntrada.parse(hora)
+        formatoSalida.format(date ?: return hora).uppercase() // <- Esto fuerza "AM" o "PM" en mayúscula
+    } catch (e: Exception) {
+        hora
+    }
+}
+
+
+fun formatearFecha(fecha: String): String {
+    return try {
+        val formatoEntrada = java.text.SimpleDateFormat("dd/MM/yyyy")
+        val formatoSalida = java.text.SimpleDateFormat("dd MMM", java.util.Locale("es", "ES"))
+        val date = formatoEntrada.parse(fecha)
+        formatoSalida.format(date ?: return fecha)
+    } catch (e: Exception) {
+        fecha
+    }
+}
+
