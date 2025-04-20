@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agilizaapp.ui.viewmodels.AnadirPedidoConProductosViewModel
 import com.example.agilizaapp.ui.viewmodels.ProductoPreviewViewModel
-import com.example.agilizaapp.ui.data.ProductoSeleccionadoPedido
+
 
 @Composable
 fun AnadirPedidoConProductos(
@@ -38,7 +38,7 @@ fun AnadirPedidoConProductos(
             .fillMaxWidth()
             .fillMaxSize()
     ) {
-        Column() {
+        Column {
 
             Row(
                 modifier = Modifier
@@ -76,7 +76,7 @@ fun AnadirPedidoConProductos(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("Productos seleccionados", fontWeight = FontWeight.Bold)
@@ -101,9 +101,9 @@ fun AnadirPedidoConProductos(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider()
 
-            val total = pedidoVM.calcularTotal()
+            val total by pedidoVM.total.collectAsState()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -11,21 +11,25 @@ class AnadirPedidoConProductosViewModel : ViewModel() {
     private val _seleccionados = MutableStateFlow<List<ProductoSeleccionadoPedido>>(emptyList())
     val seleccionados: StateFlow<List<ProductoSeleccionadoPedido>> = _seleccionados
 
+    private val _total = MutableStateFlow(0.0)
+    val total: StateFlow<Double> = _total
+
     fun agregarProducto(producto: ProductoSeleccionadoPedido) {
-        if (_seleccionados.value.none { it.id == producto.id }) {
-            _seleccionados.update { it + producto }
-        }
+        _seleccionados.update { it + producto }
+        recalcularTotal()
     }
 
     fun eliminarProducto(id: String) {
         _seleccionados.update { it.filterNot { p -> p.id == id } }
-    }
-
-    fun calcularTotal(): Double {
-        return _seleccionados.value.sumOf { it.valorVenta }
+        recalcularTotal()
     }
 
     fun limpiarSeleccionados() {
         _seleccionados.value = emptyList()
+        _total.value = 0.0
+    }
+
+    private fun recalcularTotal() {
+        _total.value = _seleccionados.value.sumOf { it.valorVenta }
     }
 }
