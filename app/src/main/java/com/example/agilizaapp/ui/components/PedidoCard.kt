@@ -31,7 +31,8 @@ import java.util.Calendar
 @Composable
 fun AnadirPedido1(
     modifier: Modifier = Modifier,
-    onContinuar: () -> Unit
+    onContinuar: (PedidoTemporal, String) -> Unit
+
 ) {
     val db = FirebaseFirestore.getInstance()
     val auth = FirebaseAuth.getInstance()
@@ -172,7 +173,7 @@ fun AnadirPedido1(
                             hora
                         )
                         println("Pedido temporal guardado: $pedidoTemporal")
-                        onContinuar()
+                        onContinuar(pedidoTemporal,codigoPedido)
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -184,11 +185,7 @@ fun AnadirPedido1(
 }
 
 
-@Preview
-@Composable
-fun PreviwAnadirPedido1() {
-    AnadirPedido1(onContinuar = {})
-}
+
 
 
 @Composable

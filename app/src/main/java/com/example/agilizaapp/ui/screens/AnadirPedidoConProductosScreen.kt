@@ -39,7 +39,7 @@ fun AnadirPedidoConProductosScreen() {
         }
     }
 
-    AnadirPedidoConProductos(codigo = codigoPedido)
+    //AnadirPedidoConProductos(codigo = codigoPedido)
 }
 
 
