@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.agilizaapp.ui.components.AnadirPedido
+import com.example.agilizaapp.ui.components.AnadirPedido1
+import com.example.agilizaapp.ui.components.AnadirPedidoConProductos
 import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
@@ -66,7 +68,9 @@ class MainActivity : ComponentActivity() {
                             )
                             Screen.PRODUCTOS -> ProductGrid()
                             Screen.PEDIDOS -> HomeScreen()
-                            Screen.ANADIR_PEDIDO -> AnadirPedido()
+                            Screen.ANADIR_PEDIDO -> AnadirPedido1(onContinuar = { currentScreen = Screen.ANADIR_PEDIDO_CON_PRODUCTOS })
+                            Screen.ANADIR_PEDIDO_CON_PRODUCTOS -> AnadirPedidoConProductos("A10")
+
                             else -> HomeScreen()
                         }
                     }

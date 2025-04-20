@@ -90,11 +90,7 @@ fun AnadirPedido(
     }
 }
 
-@Preview
-@Composable
-fun PreviwAnadirPedido(){
-    AnadirPedido()
-}
+
 
 @Composable
 fun FilaTablaAnadirPedido(
@@ -181,6 +177,69 @@ fun SelectorFechaYHora(
         )
         OutlinedButton(onClick = { timePickerDialog.show() }, modifier = Modifier.weight(1f)) {
             Text(text = horaSeleccionada.ifBlank { "Seleccionar" }, fontSize = 9.sp)
+        }
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun PreviewAnadirPedidoSinViewModel() {
+    AnadirPedidoPreviewMock()
+}
+
+@Composable
+fun AnadirPedidoPreviewMock() {
+    var fecha by remember { mutableStateOf("12/12/2025") }
+    var hora by remember { mutableStateOf("15:30") }
+
+    Card(
+        shape = RoundedCornerShape(50.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .fillMaxSize()
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.inversePrimary)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "A10",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 35.sp
+                )
+            }
+
+            FilaTablaAnadirPedido(
+                columnas = listOf("Datos de pedido"),
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                negrita = true
+            )
+
+            // Evitamos los diálogos reales, solo mostramos valores
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text("Fecha: $fecha")
+                Text("Hora: $hora")
+            }
+
+            Button(
+                onClick = { /* no-op en preview */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text("Guardar pedido de ejemplo")
+            }
         }
     }
 }

@@ -1,28 +1,13 @@
 package com.example.agilizaapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.example.agilizaapp.ui.data.Pedido
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
-data class Pedido(
-    val codigo: String = "",
-    val estado: String = "",
-    val fecha: String = "",
-    val hora: String = "",
-    val nombreCliente: String = "",
-    val numeroCliente: String = "",
-    val nombreDestinatario: String = "",
-    val numeroDestinatario: String = "",
-    val direccion: String = "",
-    val barrio: String = "",
-    val dePara: String = "",
-    val valorDomicilio: Double = 0.0,
-    val valorTotal: Double = 0.0
-)
+
 
 class HomeViewModel : ViewModel() {
 
