@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agilizaapp.ui.components.AnadirPedido1
 import com.example.agilizaapp.ui.components.AnadirPedidoConProductos
+import com.example.agilizaapp.ui.components.AnadirProducto
 import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
@@ -74,7 +75,12 @@ class MainActivity : ComponentActivity() {
                             )
 
 
-                            Screen.PRODUCTOS -> ProductGrid()
+                            Screen.PRODUCTOS -> ProductGrid(
+                                onClickAnadirProducto = {
+                                    currentScreen = Screen.ANADIR_PRODUCTO
+                                }
+                            )
+
                             Screen.PEDIDOS -> HomeScreen()
 
                             Screen.ANADIR_PEDIDO -> AnadirPedido1(
@@ -102,6 +108,12 @@ class MainActivity : ComponentActivity() {
                                     Text("Error: No se encontró la información del pedido")
                                 }
                             }
+                            Screen.ANADIR_PRODUCTO -> AnadirProducto(
+                                onProductoCreado = {
+                                    currentScreen = Screen.PRODUCTOS
+                                }
+                            )
+
 
                             else -> HomeScreen()
                         }

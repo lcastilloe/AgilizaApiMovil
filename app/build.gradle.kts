@@ -72,6 +72,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.33.2-alpha")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
 
     // TODO: Add the dependencies for Firebase products you want to use

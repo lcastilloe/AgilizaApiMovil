@@ -20,16 +20,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agilizaapp.model.PedidoTemporal
 import com.example.agilizaapp.ui.viewmodels.AnadirPedidoConProductosViewModel
-import com.example.agilizaapp.ui.viewmodels.ProductoPreviewViewModel
+import com.example.agilizaapp.ui.viewmodels.ProductoViewModel
+import com.example.agilizaapp.ui.data.ProductoSeleccionadoPedido
 
 @Composable
 fun AnadirPedidoConProductos(
     codigo: String,
     pedidoTemporal: PedidoTemporal,
     modifier: Modifier = Modifier,
-    productoVM: ProductoPreviewViewModel = viewModel(),
+    productoVM: ProductoViewModel = viewModel(),
     pedidoVM: AnadirPedidoConProductosViewModel = viewModel(),
-    onPedidoGuardado: () -> Unit // NUEVO
+    onPedidoGuardado: () -> Unit
 ) {
     val productos by productoVM.productos.collectAsState()
     val seleccionados by pedidoVM.seleccionados.collectAsState()
@@ -73,7 +74,15 @@ fun AnadirPedidoConProductos(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("${producto.codigo} - ${producto.nombre}")
-                        IconButton(onClick = { pedidoVM.agregarProducto(producto) }) {
+                        IconButton(onClick = {
+                            val productoSeleccionado = ProductoSeleccionadoPedido(
+                                id = producto.id,
+                                codigo = producto.codigo.toString(),
+                                nombre = producto.nombre,
+                                valorVenta = producto.valorVenta
+                            )
+                            pedidoVM.agregarProducto(productoSeleccionado)
+                        }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar producto")
                         }
                     }
@@ -128,7 +137,7 @@ fun AnadirPedidoConProductos(
                         onSuccess = {
                             Toast.makeText(context, "Pedido guardado con éxito", Toast.LENGTH_SHORT).show()
                             pedidoVM.limpiarSeleccionados()
-                            onPedidoGuardado() // ← aquí rediriges a HomeScreen
+                            onPedidoGuardado()
                         },
                         onError = {
                             Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()
