@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.example.agilizaapp.ui.components.AnadirPedido
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agilizaapp.model.PedidoTemporal
 import com.example.agilizaapp.ui.components.AnadirPedido1
 import com.example.agilizaapp.ui.components.AnadirPedidoConProductos
 import com.example.agilizaapp.ui.components.BottomNavBar
@@ -18,6 +19,8 @@ import com.example.agilizaapp.ui.screens.HomeScreen
 import com.example.agilizaapp.ui.screens.LoginScreen
 import com.example.agilizaapp.ui.screens.ProductGrid
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import com.example.agilizaapp.ui.viewmodels.HomeViewModel
+import com.example.agilizaapp.ui.viewmodels.SharedPedidoViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
@@ -34,12 +37,15 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                val sharedPedidoVM: SharedPedidoViewModel = viewModel()
+                val homeViewModel: HomeViewModel = viewModel() // Agrega esto
+
                 Scaffold(
                     topBar = {
                         if (currentScreen != Screen.LOGIN) {
                             TopBar(
-                                onMenuClick = { /* TODO: Menú lateral */ },
-                                onProfileClick = { /* TODO: Perfil */ }
+                                onMenuClick = { /* TODO */ },
+                                onProfileClick = { /* TODO */ }
                             )
                         }
                     },
@@ -66,10 +72,35 @@ class MainActivity : ComponentActivity() {
                                     currentScreen = Screen.PEDIDOS
                                 }
                             )
+
                             Screen.PRODUCTOS -> ProductGrid()
                             Screen.PEDIDOS -> HomeScreen()
-                            Screen.ANADIR_PEDIDO -> AnadirPedido1(onContinuar = { currentScreen = Screen.ANADIR_PEDIDO_CON_PRODUCTOS })
-                            Screen.ANADIR_PEDIDO_CON_PRODUCTOS -> AnadirPedidoConProductos("A10")
+
+                            Screen.ANADIR_PEDIDO -> AnadirPedido1(
+                                onContinuar = { pedidoTemporal, codigo ->
+                                    sharedPedidoVM.pedidoTemporal = pedidoTemporal
+                                    sharedPedidoVM.codigoGenerado = codigo
+                                    currentScreen = Screen.ANADIR_PEDIDO_CON_PRODUCTOS
+                                }
+                            )
+
+                            Screen.ANADIR_PEDIDO_CON_PRODUCTOS -> {
+                                val pedidoTemporal = sharedPedidoVM.pedidoTemporal
+                                val codigo = sharedPedidoVM.codigoGenerado
+
+                                if (pedidoTemporal != null) {
+                                    AnadirPedidoConProductos(
+                                        codigo = codigo,
+                                        pedidoTemporal = pedidoTemporal,
+                                        onPedidoGuardado = {
+                                            homeViewModel.cargarPedidos() // ← FORZAR RECARGA
+                                            currentScreen = Screen.PEDIDOS
+                                        }
+                                    )
+                                } else {
+                                    Text("Error: No se encontró la información del pedido")
+                                }
+                            }
 
                             else -> HomeScreen()
                         }

@@ -1,5 +1,6 @@
 package com.example.agilizaapp.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,23 +13,28 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agilizaapp.model.PedidoTemporal
 import com.example.agilizaapp.ui.viewmodels.AnadirPedidoConProductosViewModel
 import com.example.agilizaapp.ui.viewmodels.ProductoPreviewViewModel
-import com.example.agilizaapp.ui.data.ProductoSeleccionadoPedido
 
 @Composable
 fun AnadirPedidoConProductos(
     codigo: String,
+    pedidoTemporal: PedidoTemporal,
     modifier: Modifier = Modifier,
     productoVM: ProductoPreviewViewModel = viewModel(),
-    pedidoVM: AnadirPedidoConProductosViewModel = viewModel()
+    pedidoVM: AnadirPedidoConProductosViewModel = viewModel(),
+    onPedidoGuardado: () -> Unit // NUEVO
 ) {
     val productos by productoVM.productos.collectAsState()
     val seleccionados by pedidoVM.seleccionados.collectAsState()
+    val total by pedidoVM.total.collectAsState()
+    val context = LocalContext.current
 
     Card(
         shape = RoundedCornerShape(50.dp),
@@ -38,8 +44,7 @@ fun AnadirPedidoConProductos(
             .fillMaxWidth()
             .fillMaxSize()
     ) {
-        Column() {
-
+        Column {
             Row(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.inversePrimary)
@@ -76,7 +81,7 @@ fun AnadirPedidoConProductos(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("Productos seleccionados", fontWeight = FontWeight.Bold)
@@ -91,7 +96,6 @@ fun AnadirPedidoConProductos(
                     ) {
                         Column {
                             Text("${producto.codigo} - ${producto.nombre} - $${producto.valorVenta}")
-
                         }
                         IconButton(onClick = { pedidoVM.eliminarProducto(producto.id) }) {
                             Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar producto")
@@ -101,9 +105,8 @@ fun AnadirPedidoConProductos(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-            val total = pedidoVM.calcularTotal()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,8 +120,20 @@ fun AnadirPedidoConProductos(
 
             Button(
                 onClick = {
-                    println("Pedido creado con código $codigo y total $total")
-                    // Aquí puedes usar un callback para guardar el pedido real
+                    pedidoVM.guardarPedidoCompleto(
+                        codigo = codigo,
+                        pedidoTemporal = pedidoTemporal,
+                        total = total,
+                        productos = seleccionados,
+                        onSuccess = {
+                            Toast.makeText(context, "Pedido guardado con éxito", Toast.LENGTH_SHORT).show()
+                            pedidoVM.limpiarSeleccionados()
+                            onPedidoGuardado() // ← aquí rediriges a HomeScreen
+                        },
+                        onError = {
+                            Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

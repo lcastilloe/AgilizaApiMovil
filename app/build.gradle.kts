@@ -71,6 +71,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx") // si vas a usar Firestore
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.33.2-alpha")
 
 
     // TODO: Add the dependencies for Firebase products you want to use
