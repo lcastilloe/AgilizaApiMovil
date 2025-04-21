@@ -34,7 +34,12 @@ fun AnadirProducto(
 ) {
     val context = LocalContext.current
 
-    var codigo by remember { mutableStateOf("") }
+    // Obtén la lista de productos actuales
+    val productos = productoViewModel.productos.collectAsState().value
+
+    // Generar el nuevo código basado en los productos existentes
+    val nuevoCodigo = generarCodigoAutomatico(productos)
+
     var nombre by remember { mutableStateOf("") }
     var inversion by remember { mutableStateOf("") }
     var margen by remember { mutableStateOf("") }
@@ -77,12 +82,23 @@ fun AnadirProducto(
                 )
             }
 
-            // Campos
+            // Mostrar código generado automáticamente debajo de "Datos del Producto"
             FilaTablaAnadirPedido1(listOf("Datos del Producto"), MaterialTheme.colorScheme.primaryContainer, true)
+            Text(
+                text = "Código generado: $nuevoCodigo",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            // Solo campo de texto para nombre
             CampoTextoPedido(
-                labels = listOf("Código", "Nombre"),
-                textos = listOf(codigo, nombre),
-                onTextosChange = { index, value -> if (index == 0) codigo = value else nombre = value },
+                labels = listOf("Nombre"),
+                textos = listOf(nombre),
+                onTextosChange = { _, value -> nombre = value },
                 backgroundColor = MaterialTheme.colorScheme.inversePrimary
             )
 
@@ -128,10 +144,9 @@ fun AnadirProducto(
                 onClick = {
                     val localPath = copiarImagenALocal(context, imagenUri!!) // importante usar !! si ya validaste que no es null
 
-
                     val producto = Producto(
                         id = UUID.randomUUID().toString(),
-                        codigo = codigo.toIntOrNull() ?: 0,
+                        codigo = nuevoCodigo.toInt(),
                         nombre = nombre,
                         valorInversion = inversion.toDoubleOrNull() ?: 0.0,
                         valorMargen = margen.toDoubleOrNull() ?: 0.0,
@@ -140,16 +155,12 @@ fun AnadirProducto(
                         valorPublicidad = publicidad.toDoubleOrNull() ?: 0.0,
                         valorVenta = venta.toDoubleOrNull() ?: 0.0,
                         fotoUriLocal = localPath
-
-
                     )
-
 
                     productoViewModel.crearProducto(
                         producto = producto,
                         onSuccess = {
                             Toast.makeText(context, "Producto guardado con éxito", Toast.LENGTH_SHORT).show()
-                            codigo = ""
                             nombre = ""
                             inversion = ""
                             margen = ""
@@ -172,6 +183,7 @@ fun AnadirProducto(
         }
     }
 }
+
 fun copiarImagenALocal(context: Context, uri: Uri): String {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri) ?: return ""
@@ -185,3 +197,12 @@ fun copiarImagenALocal(context: Context, uri: Uri): String {
     }
 }
 
+fun generarCodigoAutomatico(productos: List<Producto>): String {
+    // Generar el siguiente código disponible, revisando los códigos de los productos existentes
+    val codigosExistentes = productos.map { it.codigo }
+    var siguienteCodigo = 1
+    while (codigosExistentes.contains(siguienteCodigo)) {
+        siguienteCodigo++
+    }
+    return String.format("%03d", siguienteCodigo)
+}
