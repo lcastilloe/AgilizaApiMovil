@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.agilizaapp.ui.data.ProductoEstadoPedido
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Locale
 
 @Composable
@@ -40,15 +42,41 @@ fun TarjetaPedido(
 ) {
     // Asegurar que todos los productos comiencen en "Inicio"
     val productos = remember {
-        mutableStateListOf(*productosIniciales.map { it.copy(estado = "Inicio") }.toTypedArray())
+        mutableStateListOf(*productosIniciales.toTypedArray())
     }
+
 
     // Estado mutable para el estado del pedido
     var estadoPedido by remember { mutableStateOf(calcularEstadoPedido(productos.map { it.estado })) }
+    val estadoColorPedido = when (estadoPedido) {
+        "Listo" -> MaterialTheme.colorScheme.primary
+        "Preparación" -> MaterialTheme.colorScheme.tertiary
+        "Inicio" -> MaterialTheme.colorScheme.onErrorContainer
+        else -> Color.Gray
+    }
+    val estadoColorPedidoTarjetaFuerte = when (estadoPedido) {
+        "Listo" -> MaterialTheme.colorScheme.inversePrimary
+        "Preparación" -> MaterialTheme.colorScheme.tertiaryContainer
+        "Inicio" -> MaterialTheme.colorScheme.error
+        else -> Color.Gray
+    }
+    val estadoColorPedidoTarjetaClaro = when (estadoPedido) {
+        "Listo" -> MaterialTheme.colorScheme.primaryContainer
+        "Preparación" -> MaterialTheme.colorScheme.surfaceContainer
+        "Inicio" -> MaterialTheme.colorScheme.errorContainer
+        else -> Color.Gray
+    }
+    val colorTextoFranja = when (estadoPedido) {
+        "Inicio" -> Color.White
+        "Preparación" -> MaterialTheme.colorScheme.onTertiaryContainer
+        "Listo" -> MaterialTheme.colorScheme.primary
+        else -> Color.Gray
+    }
+
 
     Card(
         shape = RoundedCornerShape(30.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        colors = CardDefaults.cardColors(containerColor = estadoColorPedidoTarjetaClaro),
         modifier = modifier
             .padding(8.dp)
             .width(170.dp)
@@ -58,14 +86,14 @@ fun TarjetaPedido(
             // Título con código y fecha
             Row(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.inversePrimary)
+                    .background(estadoColorPedidoTarjetaFuerte)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "$codigo - ${formatearFecha(fecha)}",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = colorTextoFranja,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -81,19 +109,23 @@ fun TarjetaPedido(
 
 
 
+
                     Box(
                         modifier = Modifier
-                            .background(color = MaterialTheme.colorScheme.tertiary, shape = RoundedCornerShape(8.dp))
-                            .padding(horizontal = 5.dp).fillMaxWidth(),
+                            .background(color = estadoColorPedido, shape = RoundedCornerShape(8.dp))
+                            .padding(horizontal = 5.dp)
+                            .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = estadoPedido,
                             fontSize = 12.sp,
                             color = Color.White,
+                            fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
                     }
+
                 }
 
                 Text(
@@ -113,17 +145,17 @@ fun TarjetaPedido(
 
             FilaTabla(
                 columnas = listOf("Cliente", "Barrio", "Domicilio"),
-                backgroundColor = MaterialTheme.colorScheme.inversePrimary,
+                backgroundColor = estadoColorPedidoTarjetaFuerte,
                 negrita = true // Cambia a false si quieres el texto normal
             )
             FilaTabla(
                 columnas = listOf(cliente, barrio, domicilio),
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                backgroundColor = estadoColorPedidoTarjetaClaro,
                 negrita = false // Cambia a false si quieres el texto normal
             )
             FilaTabla(
                 columnas = listOf("Producto", "Estado", "Precio"),
-                backgroundColor = MaterialTheme.colorScheme.inversePrimary,
+                backgroundColor = estadoColorPedidoTarjetaFuerte,
                 negrita = true // Cambia a false si quieres el texto normal
             )
 
@@ -151,10 +183,39 @@ fun TarjetaPedido(
                                     )
                                 },
                                 {
-                                    BoxEstado(estadoInicial = producto.estado) { nuevoEstado ->
+                                    BoxEstado(
+                                        estadoInicial = producto.estado
+                                    ) { nuevoEstado ->
                                         productos[index] = productos[index].copy(estado = nuevoEstado)
                                         estadoPedido = calcularEstadoPedido(productos.map { it.estado })
+
+                                        // ACTUALIZA EL ESTADO DEL PRODUCTO EN FIRESTORE
+                                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                                        if (uid != null) {
+                                            FirebaseFirestore.getInstance()
+                                                .collection("usuarios")
+                                                .document(uid)
+                                                .collection("pedidos")
+                                                .whereEqualTo("codigo", codigo)
+                                                .get()
+                                                .addOnSuccessListener { pedidosSnapshot ->
+                                                    val pedidoDoc = pedidosSnapshot.documents.firstOrNull()
+                                                    pedidoDoc?.reference
+                                                        ?.collection("productos")
+                                                        ?.whereEqualTo("codigo", producto.codigo)
+                                                        ?.get()
+                                                        ?.addOnSuccessListener { productosSnapshot ->
+                                                            val productoDoc = productosSnapshot.documents.firstOrNull()
+                                                            productoDoc?.reference?.update("estado", nuevoEstado)
+                                                        }
+
+                                                    // ACTUALIZA EL ESTADO DEL PEDIDO
+                                                    val nuevoEstadoPedido = calcularEstadoPedido(productos.map { it.estado })
+                                                    pedidoDoc?.reference?.update("estado", nuevoEstadoPedido)
+                                                }
+                                        }
                                     }
+
                                 },
                                 {
                                     Text(
@@ -165,7 +226,7 @@ fun TarjetaPedido(
                                     )
                                 }
                             ),
-                            backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                            backgroundColor = estadoColorPedidoTarjetaClaro,
                             negrita = false
                         )
                     }
@@ -223,30 +284,38 @@ fun PreviewTarjetaPedido() {
 
 @Composable
 fun FilaTabla(
-    columnas: List<String>, // Lista de textos para cada columna
-    backgroundColor: Color, // Color de fondo de la fila
-    negrita: Boolean // Indica si el texto debe ser negrita
+    columnas: List<String>,
+    backgroundColor: Color,
+    negrita: Boolean
 ) {
+    val colorTexto = when (backgroundColor) {
+        MaterialTheme.colorScheme.inversePrimary -> MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.tertiaryContainer -> MaterialTheme.colorScheme.onTertiaryContainer
+        MaterialTheme.colorScheme.error -> Color.White
+        else -> MaterialTheme.colorScheme.primary
+    }
+
     Row(
         modifier = Modifier
-            .background(backgroundColor) // Aplica el color de fondo
+            .background(backgroundColor)
             .fillMaxWidth()
             .height(20.dp),
-        horizontalArrangement = Arrangement.Center, // Centra los elementos horizontalmente
-        verticalAlignment = Alignment.CenterVertically // Centra verticalmente los textos
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         columnas.forEach { texto ->
             Text(
                 text = texto,
-                modifier = Modifier.weight(1f), // Hace que todas las columnas ocupen el mismo espacio
-                textAlign = TextAlign.Center, // Centra el texto dentro de su espacio
-                fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal, // Aplica negrita si el usuario lo solicita
-                fontSize = 10.sp, // Tamaño del texto
-                color = MaterialTheme.colorScheme.primary // Color del texto
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal,
+                fontSize = 10.sp,
+                color = colorTexto
             )
         }
     }
 }
+
 
 @Composable
 fun FilaProducto(

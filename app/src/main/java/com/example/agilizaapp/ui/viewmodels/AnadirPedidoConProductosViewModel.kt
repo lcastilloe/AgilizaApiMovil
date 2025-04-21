@@ -2,6 +2,7 @@ package com.example.agilizaapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.agilizaapp.model.PedidoTemporal
+import com.example.agilizaapp.ui.components.calcularEstadoPedido
 import com.example.agilizaapp.ui.data.ProductoSeleccionadoPedido
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -48,7 +49,7 @@ class AnadirPedidoConProductosViewModel : ViewModel() {
 
         val pedidoMap = hashMapOf(
             "codigo" to codigo,
-            "estado" to "Inicio",
+            "estado" to calcularEstadoPedido(productos.map { "Inicio" }),
             "fecha" to pedidoTemporal.fecha,
             "hora" to pedidoTemporal.hora,
             "nombreCliente" to pedidoTemporal.nombreCliente,
@@ -74,7 +75,8 @@ class AnadirPedidoConProductosViewModel : ViewModel() {
                     val prod = hashMapOf(
                         "codigo" to producto.codigo,
                         "nombre" to producto.nombre,
-                        "valorVenta" to producto.valorVenta
+                        "valorVenta" to producto.valorVenta,
+                        "estado" to "Inicio" // ← Agrega el estado aquí
                     )
                     batch.set(productosRef.document(), prod)
                 }
