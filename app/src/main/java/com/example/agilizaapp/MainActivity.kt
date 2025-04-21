@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.agilizaapp.model.PedidoTemporal
 import com.example.agilizaapp.ui.components.AnadirPedido1
 import com.example.agilizaapp.ui.components.AnadirPedidoConProductos
 import com.example.agilizaapp.ui.components.BottomNavBar
@@ -69,9 +68,11 @@ class MainActivity : ComponentActivity() {
                         when (currentScreen) {
                             Screen.LOGIN -> LoginScreen(
                                 onLoginSuccess = {
+                                    homeViewModel.cargarPedidos() // ← Cargar pedidos al iniciar sesión
                                     currentScreen = Screen.PEDIDOS
                                 }
                             )
+
 
                             Screen.PRODUCTOS -> ProductGrid()
                             Screen.PEDIDOS -> HomeScreen()
