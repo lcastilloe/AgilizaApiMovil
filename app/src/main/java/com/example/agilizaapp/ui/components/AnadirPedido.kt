@@ -180,6 +180,18 @@ fun AnadirPedido1(
             ) {
                 Text("Continuar")
             }
+            /*Button(
+                onClick = {
+                    crearProductosDePruebaPorUsuario()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Crear productos de ejemplo")
+            }*/
+
+
         }
     }
 }
