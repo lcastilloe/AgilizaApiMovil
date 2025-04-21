@@ -1,6 +1,6 @@
 package com.example.agilizaapp.ui.screens
 
-
+/*
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -79,3 +79,4 @@ fun ProductGrid1() {
         }
     }
 }
+*/

@@ -44,7 +44,8 @@ class ProductoViewModel : ViewModel() {
                         valorUtilidad = doc.getDouble("valorUtilidad") ?: 0.0,
                         valorPublicidad = doc.getDouble("valorPublicidad") ?: 0.0,
                         valorVenta = doc.getDouble("valorVenta") ?: 0.0,
-                        fotoUrl = doc.getString("fotoUrl") ?: ""
+                        fotoUriLocal = doc.getString("fotoUriLocal") ?: ""
+
                     )
                 }
                 _productos.value = lista
@@ -53,7 +54,6 @@ class ProductoViewModel : ViewModel() {
 
     fun crearProducto(
         producto: Producto,
-        imagenUri: Uri?,
         onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
@@ -63,24 +63,18 @@ class ProductoViewModel : ViewModel() {
             .collection("productos")
             .document()
 
-        viewModelScope.launch {
-            if (imagenUri != null) {
-                val ruta = "productos/$uid/${UUID.randomUUID()}.jpg"
-                val ref = storage.reference.child(ruta)
-
-                ref.putFile(imagenUri)
-                    .addOnSuccessListener {
-                        ref.downloadUrl.addOnSuccessListener { uri ->
-                            val productoConUrl = producto.copy(fotoUrl = uri.toString())
-                            guardarEnFirestore(productoRef.id, productoConUrl, onSuccess, onError)
-                        }
-                    }
-                    .addOnFailureListener { onError(it) }
-            } else {
-                guardarEnFirestore(productoRef.id, producto, onSuccess, onError)
+        db.collection("usuarios")
+            .document(uid)
+            .collection("productos")
+            .document(productoRef.id)
+            .set(producto.copy(id = productoRef.id))
+            .addOnSuccessListener {
+                cargarProductos()
+                onSuccess()
             }
-        }
+            .addOnFailureListener { onError(it) }
     }
+
 
     private fun guardarEnFirestore(
         id: String,

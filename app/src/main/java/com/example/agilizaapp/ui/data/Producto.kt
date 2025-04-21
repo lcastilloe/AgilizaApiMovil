@@ -10,5 +10,5 @@ data class Producto(
     val valorUtilidad: Double = 0.0,
     val valorPublicidad: Double = 0.0,
     val valorVenta: Double = 0.0,
-    val fotoUrl: String = ""
+    val fotoUriLocal: String = ""  // ← este campo es importante
 )

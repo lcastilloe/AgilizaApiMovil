@@ -1,37 +1,62 @@
 package com.example.agilizaapp.ui.screens
 
-
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.agilizaapp.R
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.agilizaapp.ui.components.ProductCard
-
+import com.example.agilizaapp.ui.viewmodels.ProductoViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun ProductGrid(onClickAnadirProducto: () -> Unit) {
+fun ProductGrid(
+    onClickAnadirProducto: () -> Unit,
+    productoViewModel: ProductoViewModel = viewModel()
+) {
+    val productos by productoViewModel.productos.collectAsState()
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    // Recarga de datos
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            productoViewModel.cargarProductos()
+            kotlinx.coroutines.delay(1000)
+            isRefreshing = false
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 64.dp)) {
-            // Tu contenido de productos
+        Column {
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = { isRefreshing = true }
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 64.dp, bottom = 80.dp, start = 8.dp, end = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(productos) { producto ->
+                        ProductCard(
+                            number = producto.codigo.toString(),
+                            title = producto.nombre,
+                            price = producto.valorVenta.toString(),
+                            imageUri = producto.fotoUriLocal,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
         }
 
         FloatingActionButton(
@@ -45,4 +70,3 @@ fun ProductGrid(onClickAnadirProducto: () -> Unit) {
         }
     }
 }
-

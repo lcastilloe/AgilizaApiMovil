@@ -1,5 +1,6 @@
 package com.example.agilizaapp.ui.components
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -8,8 +9,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,22 +19,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.agilizaapp.ui.data.Producto
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
+import com.example.agilizaapp.ui.viewmodels.ProductoViewModel
+import java.io.File
+import java.util.*
 
 @Composable
 fun AnadirProducto(
     modifier: Modifier = Modifier,
-    onProductoCreado: () -> Unit = {}
+    onProductoCreado: () -> Unit = {},
+    productoViewModel: ProductoViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
-    val storage = FirebaseStorage.getInstance()
-    val firestore = FirebaseFirestore.getInstance()
 
     var codigo by remember { mutableStateOf("") }
     var nombre by remember { mutableStateOf("") }
@@ -55,7 +54,6 @@ fun AnadirProducto(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = modifier
             .padding(8.dp)
-            .fillMaxWidth()
             .fillMaxSize()
     ) {
         Column(
@@ -63,6 +61,7 @@ fun AnadirProducto(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 16.dp)
         ) {
+            // Encabezado
             Row(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.inversePrimary)
@@ -78,13 +77,12 @@ fun AnadirProducto(
                 )
             }
 
+            // Campos
             FilaTablaAnadirPedido1(listOf("Datos del Producto"), MaterialTheme.colorScheme.primaryContainer, true)
             CampoTextoPedido(
                 labels = listOf("Código", "Nombre"),
                 textos = listOf(codigo, nombre),
-                onTextosChange = { index, value ->
-                    if (index == 0) codigo = value else nombre = value
-                },
+                onTextosChange = { index, value -> if (index == 0) codigo = value else nombre = value },
                 backgroundColor = MaterialTheme.colorScheme.inversePrimary
             )
 
@@ -92,25 +90,19 @@ fun AnadirProducto(
             CampoTextoPedido(
                 labels = listOf("Inversión", "Margen"),
                 textos = listOf(inversion, margen),
-                onTextosChange = { index, value ->
-                    if (index == 0) inversion = value else margen = value
-                },
+                onTextosChange = { index, value -> if (index == 0) inversion = value else margen = value },
                 backgroundColor = MaterialTheme.colorScheme.inversePrimary
             )
             CampoTextoPedido(
                 labels = listOf("Mano de Obra", "Utilidad"),
                 textos = listOf(manoObra, utilidad),
-                onTextosChange = { index, value ->
-                    if (index == 0) manoObra = value else utilidad = value
-                },
+                onTextosChange = { index, value -> if (index == 0) manoObra = value else utilidad = value },
                 backgroundColor = MaterialTheme.colorScheme.inversePrimary
             )
             CampoTextoPedido(
                 labels = listOf("Publicidad", "Venta"),
                 textos = listOf(publicidad, venta),
-                onTextosChange = { index, value ->
-                    if (index == 0) publicidad = value else venta = value
-                },
+                onTextosChange = { index, value -> if (index == 0) publicidad = value else venta = value },
                 backgroundColor = MaterialTheme.colorScheme.inversePrimary
             )
 
@@ -124,9 +116,7 @@ fun AnadirProducto(
                 Image(
                     painter = rememberAsyncImagePainter(it),
                     contentDescription = null,
-                    modifier = Modifier
-                        .height(150.dp)
-                        .fillMaxWidth()
+                    modifier = Modifier.height(150.dp).fillMaxWidth()
                 )
             }
 
@@ -136,39 +126,62 @@ fun AnadirProducto(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = {
-                    if (uid != null && imagenUri != null) {
-                        val nombreArchivo = UUID.randomUUID().toString()
-                        val referencia = storage.reference.child("usuarios/$uid/productos/$nombreArchivo.jpg")
-                        referencia.putFile(imagenUri!!)
-                            .continueWithTask { tarea ->
-                                if (!tarea.isSuccessful) throw tarea.exception ?: Exception("Falló carga de imagen")
-                                referencia.downloadUrl
-                            }.addOnSuccessListener { uri ->
-                                val producto = Producto(
-                                    id = nombreArchivo,
-                                    codigo = codigo.toIntOrNull() ?: 0,
-                                    nombre = nombre,
-                                    valorInversion = inversion.toDoubleOrNull() ?: 0.0,
-                                    valorMargen = margen.toDoubleOrNull() ?: 0.0,
-                                    valorManoObra = manoObra.toDoubleOrNull() ?: 0.0,
-                                    valorUtilidad = utilidad.toDoubleOrNull() ?: 0.0,
-                                    valorPublicidad = publicidad.toDoubleOrNull() ?: 0.0,
-                                    valorVenta = venta.toDoubleOrNull() ?: 0.0,
-                                    fotoUrl = uri.toString()
-                                )
-                                firestore.collection("usuarios").document(uid).collection("productos")
-                                    .document(nombreArchivo).set(producto)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(context, "Producto guardado con éxito", Toast.LENGTH_SHORT).show()
-                                        onProductoCreado()
-                                    }
-                            }
-                    }
+                    val localPath = copiarImagenALocal(context, imagenUri!!) // importante usar !! si ya validaste que no es null
+
+
+                    val producto = Producto(
+                        id = UUID.randomUUID().toString(),
+                        codigo = codigo.toIntOrNull() ?: 0,
+                        nombre = nombre,
+                        valorInversion = inversion.toDoubleOrNull() ?: 0.0,
+                        valorMargen = margen.toDoubleOrNull() ?: 0.0,
+                        valorManoObra = manoObra.toDoubleOrNull() ?: 0.0,
+                        valorUtilidad = utilidad.toDoubleOrNull() ?: 0.0,
+                        valorPublicidad = publicidad.toDoubleOrNull() ?: 0.0,
+                        valorVenta = venta.toDoubleOrNull() ?: 0.0,
+                        fotoUriLocal = localPath
+
+
+                    )
+
+
+                    productoViewModel.crearProducto(
+                        producto = producto,
+                        onSuccess = {
+                            Toast.makeText(context, "Producto guardado con éxito", Toast.LENGTH_SHORT).show()
+                            codigo = ""
+                            nombre = ""
+                            inversion = ""
+                            margen = ""
+                            manoObra = ""
+                            utilidad = ""
+                            publicidad = ""
+                            venta = ""
+                            imagenUri = null
+                            onProductoCreado()
+                        },
+                        onError = {
+                            Toast.makeText(context, "Error al guardar: ${it.message}", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 }
             ) {
                 Text("Guardar Producto")
             }
+
         }
+    }
+}
+fun copiarImagenALocal(context: Context, uri: Uri): String {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return ""
+        val fileName = "producto_${UUID.randomUUID()}.jpg"
+        val file = File(context.cacheDir, fileName)
+        file.outputStream().use { output -> inputStream.copyTo(output) }
+        file.absolutePath
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
     }
 }
 
