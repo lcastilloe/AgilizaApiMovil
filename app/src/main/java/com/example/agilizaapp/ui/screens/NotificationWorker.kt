@@ -51,8 +51,8 @@ class NotificationWorker(
             val codigo = inputData.getString("codigo") ?: return Result.failure()
 
             val noti = NotificationCompat.Builder(applicationContext, "calendar_channel")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.drawable.ic_launcher_foreground))
+                .setSmallIcon(R.drawable.agilizaicono)  // Usamos la imagen en drawable para el icono pequeño
+                .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.drawable.agilizaicono)) // Usamos la misma imagen para el icono grande
                 .setContentTitle("📦 Tienes un pedido")
                 .setContentText("Tienes un pedido, no lo olvides")
                 .setStyle(
