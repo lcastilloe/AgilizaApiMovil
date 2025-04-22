@@ -1,5 +1,8 @@
 package com.example.agilizaapp
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.agilizaapp.ui.components.AnadirPedido1
@@ -23,158 +27,161 @@ import com.example.agilizaapp.ui.components.AnadirProducto
 import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
+import com.example.agilizaapp.ui.screens.AgendaScreen
 import com.example.agilizaapp.ui.screens.HomeScreen
 import com.example.agilizaapp.ui.screens.LoginScreen
 import com.example.agilizaapp.ui.screens.ProductGrid
+import com.example.agilizaapp.ui.screens.PantallaCarga
 import com.example.agilizaapp.ui.theme.AgilizaAppTheme
 import com.example.agilizaapp.ui.viewmodels.HomeViewModel
 import com.example.agilizaapp.ui.viewmodels.LoginScreenViewModel
 import com.example.agilizaapp.ui.viewmodels.SharedPedidoViewModel
 import com.google.firebase.auth.FirebaseAuth
-
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Solicitar permiso de notificaciones en Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
+
         enableEdgeToEdge()
 
         setContent {
             AgilizaAppTheme {
-                val currentUser = FirebaseAuth.getInstance().currentUser
-                var currentScreen by remember {
-                    mutableStateOf(
-                        if (currentUser == null) Screen.LOGIN else Screen.PEDIDOS
-                    )
-                }
+                // Estados para splash, autenticación y navegación
+                var mostrarCarga by remember { mutableStateOf(true) }
+                var estaLogueado by remember { mutableStateOf(false) }
+                var currentScreen by remember { mutableStateOf(Screen.LOGIN) }
+                var showProfileDialog by remember { mutableStateOf(false) }
 
+                // ViewModels compartidos
                 val sharedPedidoVM: SharedPedidoViewModel = viewModel()
                 val homeViewModel: HomeViewModel = viewModel()
                 val loginViewModel: LoginScreenViewModel = viewModel()
 
-                val userPhotoUrl = loginViewModel.userPhotoUrl.value
-                val userName = loginViewModel.userName.value
+                // Datos de usuario
+                val userPhotoUrl by loginViewModel.userPhotoUrl
+                val userName by loginViewModel.userName
 
-                var showDialog by remember { mutableStateOf(false) }
+                // Efecto para mostrar pantalla de carga
+                LaunchedEffect(Unit) {
+                    delay(3000)
+                    mostrarCarga = false
+                }
 
-                // Mostrar el Scaffold con los elementos de la interfaz
-                Scaffold(
-                    topBar = {
-                        if (currentScreen != Screen.LOGIN) {
-                            TopBar(
-                                onMenuClick = { /* TODO */ },
-                                onProfileClick = {
-                                    showDialog = true // Mostrar el diálogo cuando se hace clic en el perfil
-                                },
-                                userPhotoUrl = userPhotoUrl,
-                                userName = userName
-                            )
-                        }
-                    },
-                    bottomBar = {
-                        if (currentScreen != Screen.LOGIN) {
-                            BottomNavBar(
-                                selectedScreen = currentScreen,
-                                onItemSelected = { screen ->
-                                    currentScreen = screen
-                                }
-                            )
-                        }
-                    },
-                    contentWindowInsets = WindowInsets.safeDrawing
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                    ) {
-                        when (currentScreen) {
-                            Screen.LOGIN -> LoginScreen(
-                                onLoginSuccess = {
-                                    homeViewModel.cargarPedidos() // ← Cargar pedidos al iniciar sesión
-                                    currentScreen = Screen.PEDIDOS
-                                }
-                            )
-
-                            Screen.PRODUCTOS -> ProductGrid(
-                                onClickAnadirProducto = {
-                                    currentScreen = Screen.ANADIR_PRODUCTO
-                                }
-                            )
-
-                            Screen.PEDIDOS -> HomeScreen(
-
-                            )
-
-                            Screen.ANADIR_PEDIDO -> AnadirPedido1(
-                                onContinuar = { pedidoTemporal, codigo ->
-                                    sharedPedidoVM.pedidoTemporal = pedidoTemporal
-                                    sharedPedidoVM.codigoGenerado = codigo
-                                    currentScreen = Screen.ANADIR_PEDIDO_CON_PRODUCTOS
-                                }
-                            )
-
-                            Screen.ANADIR_PEDIDO_CON_PRODUCTOS -> {
-                                val pedidoTemporal = sharedPedidoVM.pedidoTemporal
-                                val codigo = sharedPedidoVM.codigoGenerado
-
-                                if (pedidoTemporal != null) {
-                                    AnadirPedidoConProductos(
-                                        codigo = codigo,
-                                        pedidoTemporal = pedidoTemporal,
-                                        onPedidoGuardado = {
-                                            homeViewModel.cargarPedidos() // ← FORZAR RECARGA
-                                            currentScreen = Screen.PEDIDOS
+                if (mostrarCarga) {
+                    PantallaCarga(onTimeout = { mostrarCarga = false })
+                } else {
+                    if (!estaLogueado) {
+                        // Login inicial
+                        LoginScreen(
+                            onLoginSuccess = {
+                                homeViewModel.cargarPedidos()
+                                estaLogueado = true
+                                currentScreen = Screen.PEDIDOS
+                            }
+                        )
+                    } else {
+                        // App principal
+                        Scaffold(
+                            topBar = {
+                                TopBar(
+                                    onMenuClick = { /* TODO menú */ },
+                                    onProfileClick = { showProfileDialog = true },
+                                    userPhotoUrl = userPhotoUrl,
+                                    userName = userName
+                                )
+                            },
+                            bottomBar = {
+                                BottomNavBar(
+                                    selectedScreen = currentScreen,
+                                    onItemSelected = { screen -> currentScreen = screen }
+                                )
+                            },
+                            contentWindowInsets = WindowInsets.safeDrawing
+                        ) { innerPadding ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(innerPadding)
+                                    .fillMaxSize()
+                            ) {
+                                when (currentScreen) {
+                                    Screen.LOGIN -> LoginScreen(onLoginSuccess = {})
+                                    Screen.PRODUCTOS -> ProductGrid(onClickAnadirProducto = {
+                                        currentScreen = Screen.ANADIR_PRODUCTO
+                                    })
+                                    Screen.PEDIDOS -> HomeScreen()
+                                    Screen.AGENDA -> AgendaScreen()
+                                    Screen.ANADIR_PEDIDO -> AnadirPedido1(
+                                        onContinuar = { pedidoTemporal, codigo ->
+                                            sharedPedidoVM.pedidoTemporal = pedidoTemporal
+                                            sharedPedidoVM.codigoGenerado = codigo
+                                            currentScreen = Screen.ANADIR_PEDIDO_CON_PRODUCTOS
                                         }
                                     )
-                                } else {
-                                    Text("Error: No se encontró la información del pedido")
+                                    Screen.ANADIR_PEDIDO_CON_PRODUCTOS -> {
+                                        val pedidoTemporal = sharedPedidoVM.pedidoTemporal
+                                        val codigo = sharedPedidoVM.codigoGenerado
+                                        if (pedidoTemporal != null) {
+                                            AnadirPedidoConProductos(
+                                                codigo = codigo,
+                                                pedidoTemporal = pedidoTemporal,
+                                                onPedidoGuardado = {
+                                                    homeViewModel.cargarPedidos()
+                                                    currentScreen = Screen.PEDIDOS
+                                                }
+                                            )
+                                        } else {
+                                            Text("Error: No se encontró la información del pedido")
+                                        }
+                                    }
+                                    Screen.ANADIR_PRODUCTO -> AnadirProducto(onProductoCreado = {
+                                        currentScreen = Screen.PRODUCTOS
+                                    })
+                                    else -> HomeScreen()
                                 }
                             }
-                            Screen.ANADIR_PRODUCTO -> AnadirProducto(
-                                onProductoCreado = {
-                                    currentScreen = Screen.PRODUCTOS
+                        }
+                        // Diálogo de perfil
+                        if (showProfileDialog) {
+                            ShowProfileDialog(
+                                userName = userName,
+                                userPhotoUrl = userPhotoUrl,
+                                onLogout = {
+                                    FirebaseAuth.getInstance().signOut()
+                                    loginViewModel.clearUserData()
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        estaLogueado = false
+                                        currentScreen = Screen.LOGIN
+                                    }, 1000)
+                                    showProfileDialog = false
                                 }
                             )
-
-
-                            else -> HomeScreen()
                         }
-                    }
-                }
-                // Mostrar el diálogo solo cuando showDialog es true
-                if (showDialog) {
-                    ShowProfileDialog(userName, userPhotoUrl) {
-                        // Cerrar sesión y volver a la pantalla de login
-
-                        // Cerrar sesión correctamente y actualizar la pantalla
-                        FirebaseAuth.getInstance().signOut()
-                        loginViewModel.clearUserData() // Limpiar los datos del usuario en el ViewModel
-                        // Añadir un pequeño retraso para esperar a que la sesión se cierre completamente
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            val auth = FirebaseAuth.getInstance()
-                            // Mover la asignación fuera del 'if'
-                            currentScreen = if (auth.currentUser == null) {
-                                Screen.LOGIN // Cambiar a la pantalla de login
-                            } else {
-                                Screen.PEDIDOS // Mantener el flujo actual si no se cierra sesión correctamente
-                            }
-                        }, 1000) // 1 segundo de retraso para asegurar que la sesión se ha cerrado
-
-                        showDialog = false // Cerrar el diálogo
                     }
                 }
             }
         }
     }
-    // Función para mostrar el diálogo con el nombre del usuario y el botón de cerrar sesión
+
     @Composable
-    private fun ShowProfileDialog(userName: String, userPhotoUrl: String, onLogout: () -> Unit) {
-        // Mostrar un diálogo con el nombre del usuario, foto y botón de cerrar sesión
+    private fun ShowProfileDialog(
+        userName: String,
+        userPhotoUrl: String,
+        onLogout: () -> Unit
+    ) {
         AlertDialog(
             onDismissRequest = { },
-            title = {
-                Text("Bienvenido, $userName")
-            },
+            title = { Text("Bienvenido, $userName") },
             text = {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -191,16 +198,11 @@ class MainActivity : ComponentActivity() {
                 }
             },
             confirmButton = {
-                TextButton(onClick = onLogout) {
-                    Text("Cerrar sesión")
-                }
+                TextButton(onClick = onLogout) { Text("Cerrar sesión") }
             },
             dismissButton = {
-                TextButton(onClick = { }) {
-                    Text("Cancelar")
-                }
+                TextButton(onClick = {}) { Text("Cancelar") }
             }
         )
     }
-
 }

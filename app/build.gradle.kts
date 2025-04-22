@@ -74,8 +74,16 @@ dependencies {
     implementation("com.google.accompanist:accompanist-swiperefresh:0.33.2-alpha")
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("io.coil-kt:coil-compose:2.4.0")
-
-
+    //  Corrutinas con servicios de Google (opcional pero útil para tareas async)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation(libs.androidx.espresso.core)
+    //material calendario
+    implementation("androidx.compose.material3:material3:1.2.0")
+//para que se pueda hacer lo de notificaciones:
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
+// Lottie para animaciones
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     // https://firebase.google.com/docs/android/setup#available-libraries
