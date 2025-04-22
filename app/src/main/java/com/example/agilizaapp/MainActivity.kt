@@ -1,6 +1,8 @@
 package com.example.agilizaapp
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.agilizaapp.ui.components.AnadirPedido1
 import com.example.agilizaapp.ui.components.AnadirPedidoConProductos
 import com.example.agilizaapp.ui.components.AnadirProducto
@@ -29,6 +31,7 @@ import com.example.agilizaapp.ui.viewmodels.HomeViewModel
 import com.example.agilizaapp.ui.viewmodels.LoginScreenViewModel
 import com.example.agilizaapp.ui.viewmodels.SharedPedidoViewModel
 import com.google.firebase.auth.FirebaseAuth
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +101,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
 
-                            Screen.PEDIDOS -> HomeScreen()
+                            Screen.PEDIDOS -> HomeScreen(
+
+                            )
 
                             Screen.ANADIR_PEDIDO -> AnadirPedido1(
                                 onContinuar = { pedidoTemporal, codigo ->
@@ -138,11 +143,24 @@ class MainActivity : ComponentActivity() {
                 }
                 // Mostrar el diálogo solo cuando showDialog es true
                 if (showDialog) {
-                    showProfileDialog(userName, userPhotoUrl) {
+                    ShowProfileDialog(userName, userPhotoUrl) {
                         // Cerrar sesión y volver a la pantalla de login
+
+                        // Cerrar sesión correctamente y actualizar la pantalla
                         FirebaseAuth.getInstance().signOut()
-                        currentScreen = Screen.LOGIN
-                        showDialog = false // Ocultar el diálogo
+                        loginViewModel.clearUserData() // Limpiar los datos del usuario en el ViewModel
+                        // Añadir un pequeño retraso para esperar a que la sesión se cierre completamente
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val auth = FirebaseAuth.getInstance()
+                            // Mover la asignación fuera del 'if'
+                            currentScreen = if (auth.currentUser == null) {
+                                Screen.LOGIN // Cambiar a la pantalla de login
+                            } else {
+                                Screen.PEDIDOS // Mantener el flujo actual si no se cierra sesión correctamente
+                            }
+                        }, 1000) // 1 segundo de retraso para asegurar que la sesión se ha cerrado
+
+                        showDialog = false // Cerrar el diálogo
                     }
                 }
             }
@@ -150,7 +168,7 @@ class MainActivity : ComponentActivity() {
     }
     // Función para mostrar el diálogo con el nombre del usuario y el botón de cerrar sesión
     @Composable
-    private fun showProfileDialog(userName: String, userPhotoUrl: String, onLogout: () -> Unit) {
+    private fun ShowProfileDialog(userName: String, userPhotoUrl: String, onLogout: () -> Unit) {
         // Mostrar un diálogo con el nombre del usuario, foto y botón de cerrar sesión
         AlertDialog(
             onDismissRequest = { },
@@ -163,7 +181,7 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Image(
-                        painter = rememberImagePainter(userPhotoUrl),
+                        painter = rememberAsyncImagePainter(userPhotoUrl),
                         contentDescription = "Perfil de usuario",
                         modifier = Modifier
                             .size(80.dp)

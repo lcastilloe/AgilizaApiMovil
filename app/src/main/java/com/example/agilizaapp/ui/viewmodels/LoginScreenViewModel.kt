@@ -5,27 +5,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.agilizaapp.MainActivity
-import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 
-
 class LoginScreenViewModel: ViewModel() {
-    private val auth: FirebaseAuth = Firebase.auth
-    private val _loading = MutableLiveData(false)
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // Almacenar información del usuario
     val userPhotoUrl = mutableStateOf("")
     val userName = mutableStateOf("")
 
-    fun signWithGoogleCredential(credential: AuthCredential, home:() ->Unit)= viewModelScope.launch{
-        try{
+    fun signWithGoogleCredential(credential: AuthCredential, home: () -> Unit) = viewModelScope.launch {
+        try {
+            val auth = FirebaseAuth.getInstance()
             auth.signInWithCredential(credential)
                 .addOnCompleteListener { task ->
-                    if (task.isSuccessful){
+                    if (task.isSuccessful) {
                         val user = auth.currentUser
                         user?.let {
                             // Guardamos la foto y nombre del usuario
@@ -36,12 +33,17 @@ class LoginScreenViewModel: ViewModel() {
                         home() // Ejecuta la función que cambia de pantalla
                     }
                 }
-                .addOnFailureListener{
+                .addOnFailureListener {
                     Log.d("Macota feliz,", "fallo al loguera")
                 }
+        } catch (ex: Exception) {
+            Log.d("Agikizaap", "Excepcion al loguerar google: ${ex.localizedMessage}")
         }
-        catch (ex: Exception){
-            Log.d("Agikizaap", "Excepcion al loguerar google"+ "${ex.localizedMessage}")
-        }
+    }
+
+    // Limpiar los datos del usuario al cerrar sesión
+    fun clearUserData() {
+        userPhotoUrl.value = ""
+        userName.value = ""
     }
 }
