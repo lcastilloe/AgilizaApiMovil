@@ -28,6 +28,7 @@ import com.example.agilizaapp.ui.components.BottomNavBar
 import com.example.agilizaapp.ui.components.TopBar
 import com.example.agilizaapp.ui.navigation.Screen
 import com.example.agilizaapp.ui.screens.AgendaScreen
+import com.example.agilizaapp.ui.screens.DescripcionProyectoScreen
 import com.example.agilizaapp.ui.screens.HomeScreen
 import com.example.agilizaapp.ui.screens.LoginScreen
 import com.example.agilizaapp.ui.screens.ProductGrid
@@ -121,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                     })
                                     Screen.PEDIDOS -> HomeScreen()
                                     Screen.AGENDA -> AgendaScreen()
+                                    Screen.CREDITOS -> DescripcionProyectoScreen()
                                     Screen.ANADIR_PEDIDO -> AnadirPedido1(
                                         onContinuar = { pedidoTemporal, codigo ->
                                             sharedPedidoVM.pedidoTemporal = pedidoTemporal
@@ -147,6 +149,7 @@ class MainActivity : ComponentActivity() {
                                     Screen.ANADIR_PRODUCTO -> AnadirProducto(onProductoCreado = {
                                         currentScreen = Screen.PRODUCTOS
                                     })
+
                                     else -> HomeScreen()
                                 }
                             }

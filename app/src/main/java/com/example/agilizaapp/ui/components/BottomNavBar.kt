@@ -49,7 +49,7 @@ fun BottomNavBar(selectedScreen: Screen,
 
         NavigationBarItem(
             icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Productos") },
-            label = { Text("Productos") },
+            label = { Text("Producto") },
             selected = false,
             onClick = { onItemSelected(Screen.PRODUCTOS)},
             colors = NavigationBarItemDefaults.colors(
@@ -60,14 +60,15 @@ fun BottomNavBar(selectedScreen: Screen,
 
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Person, contentDescription = "Contabilidad") },
-            label = { Text("Contabilidad") },
+            label = { Text("Creditos") },
             selected = false,
-            onClick = {onItemSelected(Screen.CONTABILIDAD) },
+            onClick = { onItemSelected(Screen.CREDITOS) }, // Cambio aquí
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
+
     }
 
     // 🔹 Botón flotante central (+)

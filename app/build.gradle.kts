@@ -84,6 +84,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
 // Lottie para animaciones
     implementation("com.airbnb.android:lottie-compose:6.0.0")
+
+    implementation ("androidx.navigation:navigation-compose:2.5.0")
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     // https://firebase.google.com/docs/android/setup#available-libraries
